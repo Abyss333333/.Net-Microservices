@@ -1,4 +1,6 @@
+using CommandsService.AsyncDataServices;
 using CommandsService.Data;
+using CommandsService.EventProcessing;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,7 +14,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+builder.Services.AddHostedService<MessageBusSubscriber>();
+
 builder.Services.AddScoped<ICommandRepo, CommandRepo>();
+
+builder.Services.AddSingleton<IEventProcessor, EventProcessor>();
 
 
 var app = builder.Build();
