@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 using PlatformService.Models;
 
 namespace PlatformService.Data
@@ -9,17 +10,29 @@ namespace PlatformService.Data
         {
             return serviceCollection;
         }
-        public static IApplicationBuilder PrepPopulation(this IApplicationBuilder app)
+        public static IApplicationBuilder PrepPopulation(this IApplicationBuilder app, bool isProd)
         {
             using (var serviceScope = app.ApplicationServices.CreateScope())
             {
-                SeedData(serviceScope.ServiceProvider.GetService<AppDbContext>()!);
+                SeedData(serviceScope.ServiceProvider.GetService<AppDbContext>()!, isProd);
             }
             return app;
         }
 
-        private static void SeedData(AppDbContext context)
+        private static void SeedData(AppDbContext context, bool isProd)
         {
+            if (isProd)
+            {
+                Console.WriteLine("--> Attempt to apply Migrations...");
+                try
+                {
+                    context.Database.Migrate();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Could not write migrations due to {ex.Message}");
+                }
+            }
             if (!context.Platforms.Any())
             {
                 Console.WriteLine("Seeding Data...");
