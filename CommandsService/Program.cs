@@ -22,8 +22,14 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<IPlatformDataClient, PlatformDataClient>();
 
 builder.Services.AddHostedService<MessageBusSubscriber>();
-
-builder.Services.AddScoped<ICommandRepo, CommandRedisRepo>();
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddScoped<ICommandRepo, CommandRepo>();
+}
+else
+{
+    builder.Services.AddScoped<ICommandRepo, CommandRedisRepo>();
+}
 
 builder.Services.AddSingleton<IEventProcessor, EventProcessor>();
 
